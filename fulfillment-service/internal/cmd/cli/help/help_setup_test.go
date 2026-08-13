@@ -34,6 +34,7 @@ func newTestCommand() *cobra.Command {
 			return nil
 		},
 	}
+	cmd.PersistentFlags().Bool("no-color", false, "Disable colored output")
 	cmd.AddCommand(&cobra.Command{
 		Use:   "sub",
 		Short: "A subcommand",
@@ -52,8 +53,7 @@ var _ = Describe("Help output", func() {
 
 	BeforeEach(func() {
 		cmd = newTestCommand()
-		cmd.PersistentFlags().Bool("no-color", false, "Disable colored output")
-		Setup(cmd)
+		Setup(cmd, "no-color")
 		output = &bytes.Buffer{}
 		cmd.SetOut(output)
 	})

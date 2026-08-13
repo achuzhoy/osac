@@ -60,12 +60,17 @@ func Root() (result *cobra.Command, err error) {
 		defaultCacheDir,
 		cacheFlagHelp,
 	)
+	flags.Bool(
+		noColorFlag,
+		false,
+		noColorFlagHelp,
+	)
 
 	// Add commands:
 	result.AddCommand(generate.Cmd())
 
 	// Configure the root command, and therefore all its subcommands, to use Markdown for their help output:
-	help.Setup(result)
+	help.Setup(result, noColorFlag)
 
 	return
 }
@@ -134,7 +139,8 @@ func (c *runnerContext) persistentPreRun(cmd *cobra.Command, args []string) erro
 
 // Names of command line flags:
 const (
-	cacheFlag = "cache"
+	cacheFlag   = "cache"
+	noColorFlag = "no-color"
 )
 
 // Names of the environment variables:
@@ -146,6 +152,11 @@ const shortHelp = `Development tools for the _Open Sovereign AI Cloud_ platform`
 
 const longHelp = `
 Development tools for the _Open Sovereign AI Cloud_ platform.
+`
+
+const noColorFlagHelp = `
+_[BOOLEAN]_ - Disable colored output. Can also be set with the {{ bt }}NO_COLOR{{ bt }}
+environment variable.
 `
 
 const cacheFlagHelp = `

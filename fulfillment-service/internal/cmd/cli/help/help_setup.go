@@ -34,7 +34,9 @@ import (
 var templatesFS embed.FS
 
 // Setup configures the given command and all its subcommands to render their help output as styled Markdown.
-func Setup(cmd *cobra.Command) {
+// The noColorFlagName parameter is the name of the persistent boolean flag that disables colored output;
+// it must match the flag registered on the root command.
+func Setup(cmd *cobra.Command, noColorFlagName string) {
 	// Create a silent logger for the templating engine, as help rendering happens before the persistent pre-run
 	// hook sets up a proper logger, so we discard log output here.
 	logger := slog.New(slog.DiscardHandler)
@@ -76,7 +78,10 @@ func Setup(cmd *cobra.Command) {
 		// a terminal, the NO_COLOR environment variable is not set (https://no-color.org/), and the
 		// --no-color flag is not set.
 		_, noColorEnv := os.LookupEnv("NO_COLOR")
-		noColorFlagValue, _ := c.Root().PersistentFlags().GetBool(noColorFlag)
+		noColorFlagValue, err := c.Root().PersistentFlags().GetBool(noColorFlagName)
+		if err != nil {
+			c.PrintErrln("Error reading --"+noColorFlagName+" flag:", err)
+		}
 		noColor := noColorEnv || noColorFlagValue
 		useColor := isTTY && !noColor
 		var style ansi.StyleConfig
@@ -155,5 +160,3 @@ func flagsFunc(fs *pflag.FlagSet) []*pflag.Flag {
 
 // maxReadableWidth is the maximum width for help output that we consider readable.
 const maxReadableWidth = 100
-
-const noColorFlag = "no-color"

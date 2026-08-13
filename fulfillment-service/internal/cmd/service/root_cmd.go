@@ -41,7 +41,13 @@ func Root() *cobra.Command {
 	}
 
 	// Add flags:
-	logging.AddFlags(result.PersistentFlags())
+	flags := result.PersistentFlags()
+	logging.AddFlags(flags)
+	flags.Bool(
+		noColorFlag,
+		false,
+		"Disable colored output",
+	)
 
 	// Add commands:
 	result.AddCommand(dev.Cmd())
@@ -51,7 +57,7 @@ func Root() *cobra.Command {
 	result.AddCommand(version.Cmd())
 
 	// Configure the root command, and therefore all its subcommands, to use Markdown for their help output:
-	help.Setup(result)
+	help.Setup(result, noColorFlag)
 
 	return result
 }
@@ -75,6 +81,8 @@ func (c *runnerContext) persistentPreRun(cmd *cobra.Command, args []string) erro
 
 	return nil
 }
+
+const noColorFlag = "no-color"
 
 const shortHelp = `Fulfillment service.`
 

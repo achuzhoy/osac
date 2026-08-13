@@ -117,7 +117,7 @@ func Root() (result *cobra.Command, err error) {
 	result.AddCommand(whoami.Cmd())
 
 	// Configure the root command, and therefore all its subcommands, to use Markdown for their help output:
-	help.Setup(result)
+	help.Setup(result, noColorFlag)
 
 	return
 }
