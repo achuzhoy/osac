@@ -95,9 +95,9 @@ func Root() (result *cobra.Command, err error) {
 		tenantFlagHelp,
 	)
 	flags.Bool(
-		noColorFlag,
+		help.NoColorFlag,
 		false,
-		noColorFlagHelp,
+		help.NoColorFlagHelp,
 	)
 
 	// Add commands:
@@ -117,7 +117,7 @@ func Root() (result *cobra.Command, err error) {
 	result.AddCommand(whoami.Cmd())
 
 	// Configure the root command, and therefore all its subcommands, to use Markdown for their help output:
-	help.Setup(result, noColorFlag)
+	help.Setup(result, help.NoColorFlag)
 
 	return
 }
@@ -237,10 +237,9 @@ func (c *runnerContext) persistentPreRun(cmd *cobra.Command, args []string) erro
 
 // Names of command line flags:
 const (
-	configFlag  = "config"
-	cacheFlag   = "cache"
-	tenantFlag  = "tenant"
-	noColorFlag = "no-color"
+	configFlag = "config"
+	cacheFlag  = "cache"
+	tenantFlag = "tenant"
 )
 
 // Names of the environment variables:
@@ -274,9 +273,4 @@ saved with {{ bt }}{{ binary }} tenant <name>{{ bt }}, the flag takes precedence
 const cacheFlagHelp = `
 _DIRECTORY_ - Directory where cache and log files are stored. Can also be set with the {{ bt }}OSAC_CACHE{{ bt }}
 environment variable. If both are provided, the flag takes precedence.
-`
-
-const noColorFlagHelp = `
-_[BOOLEAN]_ - Disable colored output. Can also be set with the {{ bt }}NO_COLOR{{ bt }}
-environment variable.
 `

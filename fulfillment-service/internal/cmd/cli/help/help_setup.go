@@ -158,5 +158,14 @@ func flagsFunc(fs *pflag.FlagSet) []*pflag.Flag {
 	return result
 }
 
+// NoColorFlag is the name of the persistent boolean flag that disables colored output.
+const NoColorFlag = "no-color"
+
+// NoColorFlagHelp is the Markdown-formatted help text for the --no-color flag.
+const NoColorFlagHelp = `
+_[BOOLEAN]_ - Disable colored output. Can also be set with the {{ bt }}NO_COLOR{{ bt }}
+environment variable.
+`
+
 // maxReadableWidth is the maximum width for help output that we consider readable.
 const maxReadableWidth = 100
