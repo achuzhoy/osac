@@ -36,9 +36,8 @@ import (
 var templatesFS embed.FS
 
 // Setup configures the given command and all its subcommands to render their help output as styled Markdown.
-// The noColorFlagName parameter is the name of the persistent boolean flag that disables colored output;
-// it must match the flag registered on the root command.
-func Setup(cmd *cobra.Command, noColorFlagName string) {
+// The root command must have a persistent boolean flag named NoColorFlag registered before calling Setup.
+func Setup(cmd *cobra.Command) {
 	// Create a silent logger for the templating engine, as help rendering happens before the persistent pre-run
 	// hook sets up a proper logger, so we discard log output here.
 	logger := slog.New(slog.DiscardHandler)
@@ -80,9 +79,9 @@ func Setup(cmd *cobra.Command, noColorFlagName string) {
 		// a terminal, the NO_COLOR environment variable is not set (https://no-color.org/), and the
 		// --no-color flag is not set.
 		_, noColorEnv := os.LookupEnv("NO_COLOR")
-		noColorFlagValue, err := c.Root().PersistentFlags().GetBool(noColorFlagName)
+		noColorFlagValue, err := c.Root().PersistentFlags().GetBool(NoColorFlag)
 		if err != nil {
-			c.PrintErrln("Error reading --"+noColorFlagName+" flag:", err)
+			c.PrintErrln("Error reading --"+NoColorFlag+" flag:", err)
 		}
 		noColor := noColorEnv || noColorFlagValue
 		useColor := isTTY && !noColor
@@ -163,14 +162,16 @@ func flagsFunc(fs *pflag.FlagSet) []*pflag.Flag {
 	return result
 }
 
-// NoColorFlag is the name of the persistent boolean flag that disables colored output.
-const NoColorFlag = "no-color"
+const (
+	// NoColorFlag is the name of the persistent boolean flag that disables colored output.
+	NoColorFlag = "no-color"
 
-// NoColorFlagHelp is the Markdown-formatted help text for the --no-color flag.
-const NoColorFlagHelp = `
+	// NoColorFlagHelp is the Markdown-formatted help text for the --no-color flag.
+	NoColorFlagHelp = `
 _[BOOLEAN]_ - Disable colored output. Can also be set with the {{ bt }}NO_COLOR{{ bt }}
 environment variable.
 `
+)
 
 const (
 	privateAPIAnnotationKey   = "api"

@@ -55,7 +55,7 @@ var _ = Describe("Help output", func() {
 
 	BeforeEach(func() {
 		cmd = newTestCommand()
-		Setup(cmd, NoColorFlag)
+		Setup(cmd)
 		output = &bytes.Buffer{}
 		cmd.SetOut(output)
 	})
