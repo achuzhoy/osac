@@ -94,6 +94,11 @@ func Root() (result *cobra.Command, err error) {
 		"",
 		tenantFlagHelp,
 	)
+	flags.Bool(
+		noColorFlag,
+		false,
+		noColorFlagHelp,
+	)
 
 	// Add commands:
 	result.AddCommand(annotate.Cmd())
@@ -232,9 +237,10 @@ func (c *runnerContext) persistentPreRun(cmd *cobra.Command, args []string) erro
 
 // Names of command line flags:
 const (
-	configFlag = "config"
-	cacheFlag  = "cache"
-	tenantFlag = "tenant"
+	configFlag  = "config"
+	cacheFlag   = "cache"
+	tenantFlag  = "tenant"
+	noColorFlag = "no-color"
 )
 
 // Names of the environment variables:
@@ -268,4 +274,9 @@ saved with {{ bt }}{{ binary }} tenant <name>{{ bt }}, the flag takes precedence
 const cacheFlagHelp = `
 _DIRECTORY_ - Directory where cache and log files are stored. Can also be set with the {{ bt }}OSAC_CACHE{{ bt }}
 environment variable. If both are provided, the flag takes precedence.
+`
+
+const noColorFlagHelp = `
+_[BOOLEAN]_ - Disable colored output. Can also be set with the {{ bt }}NO_COLOR{{ bt }}
+environment variable.
 `

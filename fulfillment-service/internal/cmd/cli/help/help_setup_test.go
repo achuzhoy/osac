@@ -52,6 +52,7 @@ var _ = Describe("Help output", func() {
 
 	BeforeEach(func() {
 		cmd = newTestCommand()
+		cmd.PersistentFlags().Bool("no-color", false, "Disable colored output")
 		Setup(cmd)
 		output = &bytes.Buffer{}
 		cmd.SetOut(output)
@@ -95,6 +96,8 @@ var _ = Describe("Help output", func() {
 			"subcommand help output should not contain ANSI escape codes when writing to a non-TTY")
 	})
 
+	// These --no-color tests verify the flag is accepted without error. They don't exercise the
+	// TTY color-suppression path because bytes.Buffer is not a TTY; TTY behavior is verified manually.
 	It("Does not emit ANSI escape codes when --no-color flag is set", func() {
 		cmd.SetArgs([]string{"--no-color", "--help"})
 		err := cmd.Execute()
@@ -108,6 +111,7 @@ var _ = Describe("Help output", func() {
 		cmd.SetArgs([]string{"--no-color", "sub", "--help"})
 		err := cmd.Execute()
 		Expect(err).ToNot(HaveOccurred())
+		Expect(output.String()).ToNot(BeEmpty())
 		Expect(ansiPattern.FindString(output.String())).To(BeEmpty(),
 			"subcommand help should not contain ANSI escape codes when --no-color is set")
 	})

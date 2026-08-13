@@ -50,9 +50,6 @@ func Setup(cmd *cobra.Command) {
 		return
 	}
 
-	// Register the --no-color flag so users can disable styled output even on a TTY.
-	cmd.PersistentFlags().Bool(noColorFlag, false, noColorFlagHelp)
-
 	// Set the help function for the command and all its subcommands. The renderer is created each time the
 	// help is displayed, so that it can adapt to the current terminal width and color capabilities.
 	cmd.SetHelpFunc(func(c *cobra.Command, args []string) {
@@ -160,8 +157,3 @@ func flagsFunc(fs *pflag.FlagSet) []*pflag.Flag {
 const maxReadableWidth = 100
 
 const noColorFlag = "no-color"
-
-const noColorFlagHelp = `
-_[BOOLEAN]_ - Disable colored output. Can also be set with the {{ bt }}NO_COLOR{{ bt }}
-environment variable.
-`
