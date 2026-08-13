@@ -50,6 +50,9 @@ func Setup(cmd *cobra.Command) {
 		return
 	}
 
+	// Register the --no-color flag so users can disable styled output even on a TTY.
+	cmd.PersistentFlags().Bool(noColorFlag, false, noColorFlagHelp)
+
 	// Set the help function for the command and all its subcommands. The renderer is created each time the
 	// help is displayed, so that it can adapt to the current terminal width and color capabilities.
 	cmd.SetHelpFunc(func(c *cobra.Command, args []string) {
@@ -73,15 +76,22 @@ func Setup(cmd *cobra.Command) {
 		width = min(width, maxReadableWidth)
 
 		// Select the style based on terminal capabilities. Use colored styles only when the output is
-		// a terminal and the NO_COLOR environment variable is not set (https://no-color.org/).
-		_, noColor := os.LookupEnv("NO_COLOR")
+		// a terminal, the NO_COLOR environment variable is not set (https://no-color.org/), and the
+		// --no-color flag is not set.
+		_, noColorEnv := os.LookupEnv("NO_COLOR")
+		noColorFlagValue, _ := c.Root().PersistentFlags().GetBool(noColorFlag)
+		noColor := noColorEnv || noColorFlagValue
+		useColor := isTTY && !noColor
 		var style ansi.StyleConfig
-		if isTTY && !noColor {
+		if useColor {
 			if lipgloss.HasDarkBackground(os.Stdin, os.Stdout) {
 				style = styles.DarkStyleConfig
 			} else {
 				style = styles.LightStyleConfig
 			}
+			// Use the terminal's default foreground instead of Glamour's hardcoded
+			// grey (color 252/234) which is hard to read on many terminal themes.
+			style.Document.Color = nil
 		} else {
 			style = styles.NoTTYStyleConfig
 		}
@@ -125,6 +135,7 @@ func Setup(cmd *cobra.Command) {
 			c.Print(buffer.String())
 			return
 		}
+
 		_, err = lipgloss.Fprint(out, text)
 		if err != nil {
 			c.PrintErrln("Error writing help output:", err)
@@ -147,3 +158,10 @@ func flagsFunc(fs *pflag.FlagSet) []*pflag.Flag {
 
 // maxReadableWidth is the maximum width for help output that we consider readable.
 const maxReadableWidth = 100
+
+const noColorFlag = "no-color"
+
+const noColorFlagHelp = `
+_[BOOLEAN]_ - Disable colored output. Can also be set with the {{ bt }}NO_COLOR{{ bt }}
+environment variable.
+`

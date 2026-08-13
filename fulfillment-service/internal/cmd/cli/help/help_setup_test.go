@@ -22,8 +22,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ansiPattern matches ANSI escape sequences (CSI sequences for colors, styles, etc.).
-var ansiPattern = regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]`)
+// ansiPattern matches the ESC character that starts all ANSI escape sequences (CSI, OSC, etc.).
+var ansiPattern = regexp.MustCompile(`\x1b`)
 
 func newTestCommand() *cobra.Command {
 	cmd := &cobra.Command{
@@ -93,5 +93,22 @@ var _ = Describe("Help output", func() {
 		Expect(err).ToNot(HaveOccurred())
 		Expect(ansiPattern.FindString(output.String())).To(BeEmpty(),
 			"subcommand help output should not contain ANSI escape codes when writing to a non-TTY")
+	})
+
+	It("Does not emit ANSI escape codes when --no-color flag is set", func() {
+		cmd.SetArgs([]string{"--no-color", "--help"})
+		err := cmd.Execute()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(output.String()).ToNot(BeEmpty())
+		Expect(ansiPattern.FindString(output.String())).To(BeEmpty(),
+			"help output should not contain ANSI escape codes when --no-color is set")
+	})
+
+	It("Does not emit ANSI escape codes for subcommand help when --no-color flag is set", func() {
+		cmd.SetArgs([]string{"--no-color", "sub", "--help"})
+		err := cmd.Execute()
+		Expect(err).ToNot(HaveOccurred())
+		Expect(ansiPattern.FindString(output.String())).To(BeEmpty(),
+			"subcommand help should not contain ANSI escape codes when --no-color is set")
 	})
 })
